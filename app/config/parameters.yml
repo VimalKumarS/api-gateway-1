@@ -1,0 +1,25 @@
+---
+app_env: dev
+
+# ESB self-configuration port & domain name
+# This section will also contain database, cache server properties, etc
+esb:
+  scheme: http
+  host: esb.vm
+  port: 80
+
+# Logging parameters
+logging:
+  file: /var/log/esb.log
+  rotate: daily
+  level: debug
+
+# ESB security settings
+security:
+  public_endpoints: ['/auth/v1/login', '/auth/v1/forgot-password']
+  user_token_validation: /auth/validate-token # endpoint receiving user token and returning whether it is valid
+  trusted_sources: []
+  service_alias: authentication_service
+
+# Routing to services
+routing: {'calendar_service': {'routes': [{'pattern': '/calendar/v1/'}], 'instances': ['https://stubby.dev:80', 'https://stubby.dev:8080']}, 'erm_api': {'routes': [{'pattern': '/office/countries/', 'target': '/api/myCiklum/getCountries'}, {'pattern': '/office/locations/', 'target': '/api/myCiklum/getLocations'}, {'pattern': '/office/offices/', 'target': '/api/myCiklum/getOffices'}, {'pattern': '/user/clients/', 'target': '/api/myCiklum/getCustomers'}, {'pattern': '/user/users/', 'target': '/api/myCiklum/getUsers'}], 'instances': ['https://erm-test'], 'custom_headers': {'x-profile-id': '33c9b10191c08bed5fcfb96d98e62902', 'Authorization': 'Basic YnBhOk56dm5xSktIMFBwME0='}, 'timeout': 60000}, 'booking_service': {'routes': [{'pattern': '/booking/v1/'}], 'instances': ['https://booking.dev:8003', 'https://booking.dev:8080']}, 'authentication_service': {'routes': [{'pattern': '/auth/v1/', 'target': '/auth-stubs/'}], 'instances': ['https://stubby.dev:80', 'https://stubby.dev:8080'], 'keep_alive': 60000, 'timeout': 1000}}
